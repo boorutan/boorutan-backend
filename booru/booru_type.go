@@ -8,11 +8,11 @@ const (
 )
 
 type BooruUrl struct {
-	Base string
 	Post string
 }
 
 type Booru struct {
+	Base      string
 	Url       BooruUrl
 	BooruType BooruType
 }
