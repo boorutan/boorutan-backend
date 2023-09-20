@@ -1,17 +1,29 @@
 package booru
 
 import (
-	http "applemango/boorutan/backend/utils"
+	"applemango/boorutan/backend/utils/http"
 	"fmt"
 )
 
-func (b *Booru) GetPost() (*[]BooruPost, error) {
+func CreateBooru(t BooruType, u string) Booru {
+	if t == MoeBooru {
+		return Booru{
+			BooruType: MoeBooru,
+		}
+	}
+	return Booru{
+		BooruType: DanBooru,
+	}
+}
+
+func (b *Booru) GetPost(cache bool) (*[]BooruPost, error) {
 	var post *[]BooruPost
-	err := http.RequestJSON(
-		&post,
-		fmt.Sprintf("%v%v", b.Url.Base, b.Url.Post),
-		"GET",
-		nil,
-	)
+	err := http.RequestJSON(http.RequestOption{
+		Data:   &post,
+		Url:    fmt.Sprintf("%v%v", b.Base, b.Url.Post),
+		Method: "GET",
+		Body:   nil,
+		Cache:  cache,
+	})
 	return post, err
 }
