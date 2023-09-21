@@ -7,6 +7,7 @@ func CreateMoeBooru(base string) booru.Booru {
 		Base: base,
 		Url: booru.BooruUrl{
 			Post: "/post.json",
+			Tag:  "/tag.json?order=count",
 		},
 		BooruType: booru.MoeBooru,
 	}
