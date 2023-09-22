@@ -126,6 +126,7 @@ func main() {
 			post, err := b.GetPosts(booru.GetPostsOption{
 				Cache: true,
 				Page:  page,
+				Tags:  tags,
 			})
 			if err != nil {
 				println(err.Error())
