@@ -49,6 +49,7 @@ func main() {
 			url, in := c.GetQuery("url")
 			if !in {
 				c.JSON(http.StatusInternalServerError, "err")
+				return
 			}
 			uuid, err := image.GetImage(url)
 			if err != nil {
@@ -63,11 +64,13 @@ func main() {
 			tags, in := c.GetQuery("tag")
 			if !in {
 				c.JSON(http.StatusInternalServerError, "err")
+				return
 			}
 			category, err := b.GetTagsCategoryFromString(tags)
 			if err != nil {
 				println(err.Error())
 				c.JSON(http.StatusInternalServerError, err)
+				return
 			}
 			c.JSON(http.StatusOK, category)
 		})
@@ -78,6 +81,7 @@ func main() {
 			if err != nil {
 				println(err.Error())
 				c.JSON(http.StatusInternalServerError, err)
+				return
 			}
 			c.JSON(http.StatusOK, tag)
 		})
@@ -87,6 +91,7 @@ func main() {
 			if err != nil {
 				println(err.Error())
 				c.JSON(http.StatusInternalServerError, err)
+				return
 			}
 			post, err := b.GetPost(booru.GetPostOption{
 				ID: id,
@@ -94,6 +99,7 @@ func main() {
 			if err != nil {
 				println(err.Error())
 				c.JSON(http.StatusInternalServerError, err)
+				return
 			}
 			c.JSON(http.StatusOK, post)
 		})
@@ -107,6 +113,7 @@ func main() {
 				if err != nil {
 					println(err.Error())
 					c.JSON(http.StatusInternalServerError, err)
+					return
 				}
 				page = p
 			}
@@ -118,6 +125,7 @@ func main() {
 			if err != nil {
 				println(err.Error())
 				c.JSON(http.StatusInternalServerError, err)
+				return
 			}
 			c.JSON(http.StatusOK, post)
 		})
