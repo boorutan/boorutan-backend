@@ -44,11 +44,16 @@ func (b *Booru) GetTags() error {
 	return nil
 }
 
-type TagCategory struct {
-	Category string
-	Name     string
-}
-
-func (b *Booru) GetTagCategory() TagCategory {
-
+func (b *Booru) GetTagCategory(name string) (string, error) {
+	var url string
+	if b.Url.TagSummary != nil {
+		url = fmt.Sprintf("%v%v", b.Base, b.Url.TagSummary)
+	} else {
+		url = "https://konachan.com/tag/summary.json"
+	}
+	cache, err := redis.Get(fmt.Sprintf("cache:tag:%v:%v", url, name))
+	if err != nil {
+		return "", err
+	}
+	return cache, nil
 }
