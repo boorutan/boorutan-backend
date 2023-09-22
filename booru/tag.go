@@ -59,8 +59,8 @@ func (b *Booru) GetTagCategory(name string) (string, error) {
 }
 
 type TagCategory struct {
-	name     string
-	category string
+	Name     string
+	Category string
 }
 
 func (b *Booru) GetTagsCategory(names []string) ([]TagCategory, error) {
@@ -68,12 +68,17 @@ func (b *Booru) GetTagsCategory(names []string) ([]TagCategory, error) {
 	for _, name := range names {
 		category, err := b.GetTagCategory(name)
 		if err != nil {
-			continue
+			category = "0"
 		}
 		tags = append(tags, TagCategory{
-			name:     name,
-			category: category,
+			Name:     name,
+			Category: category,
 		})
 	}
 	return tags, nil
+}
+
+func (b *Booru) GetTagsCategoryFromString(names string) ([]TagCategory, error) {
+	tags := strings.Split(names, " ")
+	return b.GetTagsCategory(tags)
 }

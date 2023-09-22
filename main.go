@@ -16,7 +16,7 @@ func main() {
 	//var b = moebooru.CreateMoeBooru("https://lolibooru.moe")
 	//var b = moebooru.CreateMoeBooru("https://konachan.com")
 	var b = danbooru.CreateDanBooru("https://danbooru.donmai.us/")
-	_ = b.GetTags()
+	//_ = b.GetTags()
 
 	app := gin.Default()
 	{
@@ -59,6 +59,18 @@ func main() {
 		})
 	}
 	{
+		app.GET("/category", func(c *gin.Context) {
+			tags, in := c.GetQuery("tag")
+			if !in {
+				c.JSON(http.StatusInternalServerError, "err")
+			}
+			category, err := b.GetTagsCategoryFromString(tags)
+			if err != nil {
+				println(err.Error())
+				c.JSON(http.StatusInternalServerError, err)
+			}
+			c.JSON(http.StatusOK, category)
+		})
 		app.GET("/tag", func(c *gin.Context) {
 			tag, err := b.GetTag(booru.GetTagOption{
 				Cache: true,
