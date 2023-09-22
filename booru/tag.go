@@ -57,3 +57,23 @@ func (b *Booru) GetTagCategory(name string) (string, error) {
 	}
 	return cache, nil
 }
+
+type TagCategory struct {
+	name     string
+	category string
+}
+
+func (b *Booru) GetTagsCategory(names []string) ([]TagCategory, error) {
+	var tags []TagCategory
+	for _, name := range names {
+		category, err := b.GetTagCategory(name)
+		if err != nil {
+			continue
+		}
+		tags = append(tags, TagCategory{
+			name:     name,
+			category: category,
+		})
+	}
+	return tags, nil
+}
