@@ -3,6 +3,7 @@ package main
 import (
 	"applemango/boorutan/backend/booru"
 	"applemango/boorutan/backend/booru/danbooru"
+	"applemango/boorutan/backend/booru/moebooru"
 	"applemango/boorutan/backend/utils/image"
 	"fmt"
 	"net/http"
@@ -12,10 +13,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func getBooru(c *gin.Context) booru.Booru {
+	b, in := c.GetQuery("booru")
+	if !in {
+		return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
+	}
+	switch b {
+	case "konachan":
+		return moebooru.CreateMoeBooru("https://konachan.com")
+	case "lolibooru":
+		return moebooru.CreateMoeBooru("https://lolibooru.moe")
+	case "danbooru":
+		return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
+	}
+	return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
+}
+
 func main() {
 	//var b = moebooru.CreateMoeBooru("https://lolibooru.moe")
 	//var b = moebooru.CreateMoeBooru("https://konachan.com")
-	var b = danbooru.CreateDanBooru("https://danbooru.donmai.us/")
+	//var b = danbooru.CreateDanBooru("https://danbooru.donmai.us/")
 	//_ = b.GetTags()
 
 	app := gin.Default()
@@ -61,6 +78,7 @@ func main() {
 	}
 	{
 		app.GET("/category", func(c *gin.Context) {
+			b := getBooru(c)
 			tags, in := c.GetQuery("tag")
 			if !in {
 				c.JSON(http.StatusInternalServerError, "err")
@@ -75,6 +93,7 @@ func main() {
 			c.JSON(http.StatusOK, category)
 		})
 		app.GET("/tag", func(c *gin.Context) {
+			b := getBooru(c)
 			tag, err := b.GetTag(booru.GetTagOption{
 				Cache: true,
 			})
@@ -86,6 +105,7 @@ func main() {
 			c.JSON(http.StatusOK, tag)
 		})
 		app.GET("/post/:id", func(c *gin.Context) {
+			b := getBooru(c)
 			idStr := c.Param("id")
 			id, err := strconv.Atoi(idStr)
 			if err != nil {
@@ -104,6 +124,7 @@ func main() {
 			c.JSON(http.StatusOK, post)
 		})
 		app.GET("/post", func(c *gin.Context) {
+			b := getBooru(c)
 			pageStr, in := c.GetQuery("page")
 			var tags any
 			tags, inTags := c.GetQuery("tags")
