@@ -16,6 +16,7 @@ func main() {
 	//var b = moebooru.CreateMoeBooru("https://lolibooru.moe")
 	//var b = moebooru.CreateMoeBooru("https://konachan.com")
 	var b = danbooru.CreateDanBooru("https://danbooru.donmai.us/")
+	_ = b.GetTags()
 
 	app := gin.Default()
 	{

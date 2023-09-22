@@ -8,8 +8,9 @@ const (
 )
 
 type Url struct {
-	Post string
-	Tag  string
+	Post       string
+	Tag        string
+	TagSummary any
 }
 
 type Booru struct {
