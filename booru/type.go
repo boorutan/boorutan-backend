@@ -1,24 +1,24 @@
 package booru
 
-type BooruType int
+type Type int
 
 const (
-	DanBooru BooruType = iota
+	DanBooru Type = iota
 	MoeBooru
 )
 
-type BooruUrl struct {
+type Url struct {
 	Post string
 	Tag  string
 }
 
 type Booru struct {
 	Base      string
-	Url       BooruUrl
-	BooruType BooruType
+	Url       Url
+	BooruType Type
 }
 
-type BooruPost struct {
+type Post struct {
 	ID                  int           `json:"id"`
 	Tags                string        `json:"tags"`
 	CreatedAt           int           `json:"created_at"`
@@ -115,7 +115,7 @@ type BooruPost struct {
 	PreviewFileURL     string `json:"preview_file_url"`
 }
 
-type BooruTag struct {
+type Tag struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	Count     int    `json:"count"`

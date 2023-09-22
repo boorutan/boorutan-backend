@@ -58,7 +58,7 @@ func main() {
 		})
 	}
 	{
-		app.GET("/tags", func(c *gin.Context) {
+		app.GET("/tag", func(c *gin.Context) {
 			tag, err := b.GetTag(booru.GetTagOption{
 				Cache: true,
 			})
@@ -67,6 +67,22 @@ func main() {
 				c.JSON(http.StatusInternalServerError, err)
 			}
 			c.JSON(http.StatusOK, tag)
+		})
+		app.GET("/post/:id", func(c *gin.Context) {
+			idStr := c.Param("id")
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				println(err.Error())
+				c.JSON(http.StatusInternalServerError, err)
+			}
+			post, err := b.GetPost(booru.GetPostOption{
+				ID: id,
+			})
+			if err != nil {
+				println(err.Error())
+				c.JSON(http.StatusInternalServerError, err)
+			}
+			c.JSON(http.StatusOK, post)
 		})
 		app.GET("/post", func(c *gin.Context) {
 			pageStr, in := c.GetQuery("page")
@@ -82,7 +98,7 @@ func main() {
 				page = p
 			}
 			println(page)
-			post, err := b.GetPost(booru.GetPostOption{
+			post, err := b.GetPosts(booru.GetPostsOption{
 				Cache: true,
 				Page:  page,
 			})
@@ -93,5 +109,5 @@ func main() {
 			c.JSON(http.StatusOK, post)
 		})
 	}
-	app.Run(":8080")
+	_ = app.Run(":8080")
 }
