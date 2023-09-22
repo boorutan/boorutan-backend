@@ -105,7 +105,12 @@ func main() {
 		})
 		app.GET("/post", func(c *gin.Context) {
 			pageStr, in := c.GetQuery("page")
+			var tags any
+			tags, inTags := c.GetQuery("tags")
 			var page int
+			if !inTags {
+				tags = nil
+			}
 			if !in {
 				page = 1
 			} else {

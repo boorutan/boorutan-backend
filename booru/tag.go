@@ -51,6 +51,7 @@ func (b *Booru) GetTagCategory(name string) (string, error) {
 	} else {
 		url = "https://konachan.com/tag/summary.json"
 	}
+	fmt.Printf("cache:tag:%v:%v\n", url, name)
 	cache, err := redis.Get(fmt.Sprintf("cache:tag:%v:%v", url, name))
 	if err != nil {
 		return "", err

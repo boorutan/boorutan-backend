@@ -9,6 +9,7 @@ import (
 
 type GetPostsOption struct {
 	Page  int
+	Tags  any
 	Cache bool
 }
 
@@ -18,6 +19,13 @@ func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 	url = fmt.Sprintf("%v%v?page=%v", b.Base, b.Url.Post, option.Page)
 	if option.Page == 1 {
 		url = fmt.Sprintf("%v%v", b.Base, b.Url.Post)
+	}
+	if option.Tags != nil {
+		a := "&"
+		if option.Page == 1 {
+			a = "?"
+		}
+		url = fmt.Sprintf("%v%vtags=%v", url, a, option.Tags)
 	}
 	err := http.RequestJSON(http.RequestOption{
 		Data:   &post,
