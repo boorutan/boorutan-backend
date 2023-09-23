@@ -21,6 +21,10 @@ func getBooru(c *gin.Context) booru.Booru {
 	switch b {
 	case "konachan":
 		return moebooru.CreateMoeBooru("https://konachan.com")
+	case "safekonachan":
+		return moebooru.CreateMoeBooru("https://konachan.net")
+	case "yandere":
+		return moebooru.CreateMoeBooru("https://yande.re")
 	case "lolibooru":
 		return moebooru.CreateMoeBooru("https://lolibooru.moe")
 	case "danbooru":
@@ -39,7 +43,7 @@ func main() {
 	{
 		app.Use(cors.New(cors.Config{
 			AllowOrigins: []string{
-				"http://127.0.0.1:3001",
+				"https://booru.i32.jp",
 			},
 			AllowMethods: []string{
 				"POST",
@@ -50,6 +54,7 @@ func main() {
 			AllowHeaders: []string{
 				"Access-Control-Allow-Credentials",
 				"Access-Control-Allow-Headers",
+				"Access-Control-Allow-Origin",
 				"Content-Type",
 				"Content-Length",
 				"Accept-Encoding",
@@ -129,7 +134,7 @@ func main() {
 			var tags any
 			tags, inTags := c.GetQuery("tags")
 			var page int
-			if !inTags {
+			if !inTags || tags == "" {
 				tags = nil
 			}
 			if !in {

@@ -27,6 +27,7 @@ func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 		}
 		url = fmt.Sprintf("%v%vtags=%v", url, a, option.Tags)
 	}
+	fmt.Println(url)
 	err := http.RequestJSON(http.RequestOption{
 		Data:   &post,
 		Url:    url,
