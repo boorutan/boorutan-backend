@@ -33,12 +33,22 @@ func getBooru(c *gin.Context) booru.Booru {
 	return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
 }
 
+func OptionMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+		if method == "OPTION" {
+			c.JSON(http.StatusOK, "pong")
+			c.Abort()
+		}
+	}
+}
+
 func main() {
 	//var b = moebooru.CreateMoeBooru("https://lolibooru.moe")
 	//var b = moebooru.CreateMoeBooru("https://konachan.com")
 	//var b = danbooru.CreateDanBooru("https://danbooru.donmai.us/")
 	//_ = b.GetTags()
-
+	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
 	{
 		app.Use(cors.New(cors.Config{
@@ -62,11 +72,13 @@ func main() {
 			},
 			MaxAge: 0,
 		}))
+		app.Use(OptionMiddleware())
 		app.GET("/ping", func(c *gin.Context) {
 			c.JSON(http.StatusOK, "pong")
 		})
 	}
 	{
+		app.OPTIONS("/image", OptionMiddleware())
 		app.GET("/image", func(c *gin.Context) {
 			url, in := c.GetQuery("url")
 			if !in {
@@ -82,6 +94,7 @@ func main() {
 		})
 	}
 	{
+		app.OPTIONS("/category", OptionMiddleware())
 		app.GET("/category", func(c *gin.Context) {
 			b := getBooru(c)
 			tags, in := c.GetQuery("tag")
@@ -97,6 +110,7 @@ func main() {
 			}
 			c.JSON(http.StatusOK, category)
 		})
+		app.OPTIONS("/tag", OptionMiddleware())
 		app.GET("/tag", func(c *gin.Context) {
 			b := getBooru(c)
 			tag, err := b.GetTag(booru.GetTagOption{
@@ -109,6 +123,7 @@ func main() {
 			}
 			c.JSON(http.StatusOK, tag)
 		})
+		app.OPTIONS("/post/:id", OptionMiddleware())
 		app.GET("/post/:id", func(c *gin.Context) {
 			b := getBooru(c)
 			idStr := c.Param("id")
@@ -128,6 +143,7 @@ func main() {
 			}
 			c.JSON(http.StatusOK, post)
 		})
+		app.OPTIONS("/post", OptionMiddleware())
 		app.GET("/post", func(c *gin.Context) {
 			b := getBooru(c)
 			pageStr, in := c.GetQuery("page")
