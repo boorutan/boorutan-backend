@@ -83,3 +83,15 @@ func (b *Booru) GetTagsCategoryFromString(names string) ([]TagCategory, error) {
 	tags := strings.Split(names, " ")
 	return b.GetTagsCategory(tags)
 }
+
+type DanbooruTag struct {
+	UpdatedAt string `json:"updated_at"`
+	IsLocked  bool   `json:"is_locked"`
+	Name      string `json:"name"`
+	Category  string `json:"category"`
+	CreatedAt string `json:"created_at"`
+	PostCount string `json:"post_count"`
+	ID        string `json:"id"`
+}
+
+func (b *Booru) SearchTags(name string) {}

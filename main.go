@@ -4,9 +4,14 @@ import (
 	"applemango/boorutan/backend/booru"
 	"applemango/boorutan/backend/booru/danbooru"
 	"applemango/boorutan/backend/booru/moebooru"
+	"applemango/boorutan/backend/db/redis"
 	"applemango/boorutan/backend/utils/image"
+	"bufio"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-contrib/cors"
@@ -36,23 +41,65 @@ func getBooru(c *gin.Context) booru.Booru {
 func OptionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
-		if method == "OPTION" {
+		if method == "OPTION" || method == "OPTIONS" {
 			c.JSON(http.StatusOK, "pong")
 			c.Abort()
 		}
 	}
 }
 
+func pushTag(tag *booru.DanbooruTag, json string) error {
+	err := redis.Push(fmt.Sprintf("cache:tag:%v", tag.Name), json)
+	return err
+}
+
+func readTags() error {
+	fp, err := os.Open("./tags.json")
+	if err != nil {
+		return err
+	}
+	defer fp.Close()
+
+	reader := bufio.NewReader(fp)
+	for {
+		line, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			println(err.Error())
+			continue
+		}
+		var tag *booru.DanbooruTag
+		err = json.Unmarshal(line, &tag)
+		if err != nil {
+			println(err.Error())
+			continue
+		}
+		err = pushTag(tag, string(line))
+		if err != nil {
+			println(err.Error())
+			continue
+		}
+	}
+	return nil
+}
+
+func __init__() {
+	b := moebooru.CreateMoeBooru("https://konachan.net")
+	_ = b.GetTags()
+
+	_ = readTags()
+}
+
 func main() {
-	//var b = moebooru.CreateMoeBooru("https://lolibooru.moe")
-	//var b = moebooru.CreateMoeBooru("https://konachan.com")
-	//var b = danbooru.CreateDanBooru("https://danbooru.donmai.us/")
-	//_ = b.GetTags()
+
 	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
 	{
 		app.Use(cors.New(cors.Config{
 			AllowOrigins: []string{
+				"http://127.0.0.1:3001",
 				"https://booru.i32.jp",
 			},
 			AllowMethods: []string{
