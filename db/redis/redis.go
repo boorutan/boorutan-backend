@@ -22,3 +22,24 @@ func Get(key string) (string, error) {
 	v, err := DB.Get(Ctx, key).Result()
 	return v, err
 }
+
+func SearchKV(key string, max int64) ([]string, []string, error) {
+	var keys []string
+	var values []string
+	var i int64
+	iter := DB.Scan(Ctx, 0, key, max).Iterator()
+	for iter.Next(Ctx) {
+		if i >= max {
+			return keys, values, nil
+		}
+		i++
+		val := iter.Val()
+		v, err := Get(val)
+		if err != nil {
+			continue
+		}
+		keys = append(keys, val)
+		values = append(values, v)
+	}
+	return keys, values, nil
+}

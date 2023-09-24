@@ -157,6 +157,16 @@ func main() {
 			}
 			c.JSON(http.StatusOK, category)
 		})
+		app.OPTIONS("/tag/suggest", OptionMiddleware())
+		app.GET("/tag/suggest", func(c *gin.Context) {
+			q, in := c.GetQuery("q")
+			if !in {
+				c.JSON(http.StatusInternalServerError, "err")
+				return
+			}
+			tags := booru.SearchTags(q)
+			c.JSON(http.StatusOK, tags)
+		})
 		app.OPTIONS("/tag", OptionMiddleware())
 		app.GET("/tag", func(c *gin.Context) {
 			b := getBooru(c)

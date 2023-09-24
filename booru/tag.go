@@ -3,6 +3,7 @@ package booru
 import (
 	"applemango/boorutan/backend/db/redis"
 	"applemango/boorutan/backend/utils/http"
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -94,4 +95,13 @@ type DanbooruTag struct {
 	ID        string `json:"id"`
 }
 
-func (b *Booru) SearchTags(name string) {}
+func SearchTags(name string) []DanbooruTag {
+	var tags []DanbooruTag
+	_, values, _ := redis.SearchKV(fmt.Sprintf("cache:tag:%v*", name), 100)
+	for _, v := range values {
+		var tag *DanbooruTag
+		_ = json.Unmarshal([]byte(v), &tag)
+		tags = append(tags, *tag)
+	}
+	return tags
+}
