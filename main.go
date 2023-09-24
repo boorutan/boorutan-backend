@@ -100,7 +100,6 @@ func main() {
 		app.Use(cors.New(cors.Config{
 			AllowOrigins: []string{
 				"http://127.0.0.1:3001",
-				"https://booru.i32.jp",
 			},
 			AllowMethods: []string{
 				"POST",
@@ -139,6 +138,9 @@ func main() {
 			path := fmt.Sprintf("./static/images/%s", uuid)
 			c.File(path)
 		})
+	}
+	{
+		app.POST("")
 	}
 	{
 		app.OPTIONS("/category", OptionMiddleware())
