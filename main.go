@@ -5,6 +5,7 @@ import (
 	"applemango/boorutan/backend/booru/danbooru"
 	"applemango/boorutan/backend/booru/moebooru"
 	"applemango/boorutan/backend/db/redis"
+	"applemango/boorutan/backend/db/sqlite3"
 	"applemango/boorutan/backend/utils/image"
 	"bufio"
 	"encoding/json"
@@ -18,12 +19,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getBooru(c *gin.Context) booru.Booru {
-	b, in := c.GetQuery("booru")
-	if !in {
-		return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
-	}
-	switch b {
+func getBooruFromString(booru string) booru.Booru {
+	switch booru {
 	case "konachan":
 		return moebooru.CreateMoeBooru("https://konachan.com")
 	case "safekonachan":
@@ -36,6 +33,14 @@ func getBooru(c *gin.Context) booru.Booru {
 		return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
 	}
 	return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
+}
+
+func getBooru(c *gin.Context) booru.Booru {
+	b, in := c.GetQuery("booru")
+	if !in {
+		return danbooru.CreateDanBooru("https://danbooru.donmai.us/")
+	}
+	return getBooruFromString(b)
 }
 
 func OptionMiddleware() gin.HandlerFunc {
@@ -140,7 +145,64 @@ func main() {
 		})
 	}
 	{
-		app.POST("")
+		app.GET("/like", func(c *gin.Context) {
+			rows, err := sqlite3.DB.Query("SELECT * FROM like WHERE user_id = ?", 1)
+			type like struct {
+				ID     int64  `json:"id"`
+				Booru  string `json:"booru"`
+				PostId int64  `json:"post_id"`
+				UserId int64  `json:"user_id"`
+			}
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			var likes []like
+			var posts []*booru.Post
+			for rows.Next() {
+				l := like{}
+				if err = rows.Scan(&l.ID, &l.Booru, &l.PostId, &l.UserId); err != nil {
+					println(err.Error())
+					break
+				}
+				b := getBooruFromString(l.Booru)
+				post, err := b.GetPost(booru.GetPostOption{
+					ID: int(l.PostId),
+				})
+				if err != nil {
+					println(err.Error())
+					break
+				}
+				posts = append(posts, post)
+				likes = append(likes, l)
+			}
+			c.JSON(http.StatusOK, posts)
+			return
+		})
+		app.POST("/like/:booru/:id", func(c *gin.Context) {
+			booruname := c.Param("id")
+			idStr := c.Param("id")
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			stmt, err := sqlite3.DB.Prepare("INSERT INTO  like (booru, post_id, user_id) VALUES ( ?, ?, ?)")
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			_, err = stmt.Exec(booruname, id, 1)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			type msg struct {
+				Msg string `json:"msg"`
+			}
+			c.JSON(http.StatusOK, msg{Msg: "success"})
+			return
+		})
 	}
 	{
 		app.OPTIONS("/category", OptionMiddleware())
