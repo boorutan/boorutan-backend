@@ -146,7 +146,7 @@ func main() {
 	}
 	{
 		app.GET("/like", func(c *gin.Context) {
-			rows, err := sqlite3.DB.Query("SELECT * FROM like WHERE user_id = ?", 1)
+			rows, err := sqlite3.DB.Query("SELECT id, booru, post_id, user_id FROM like WHERE user_id = ?", 1)
 			type like struct {
 				ID     int64  `json:"id"`
 				Booru  string `json:"booru"`
@@ -157,7 +157,6 @@ func main() {
 				c.JSON(http.StatusInternalServerError, err)
 				return
 			}
-			var likes []like
 			var posts []*booru.Post
 			for rows.Next() {
 				l := like{}
@@ -173,14 +172,14 @@ func main() {
 					println(err.Error())
 					break
 				}
+				post.BooruType = l.Booru
 				posts = append(posts, post)
-				likes = append(likes, l)
 			}
 			c.JSON(http.StatusOK, posts)
 			return
 		})
 		app.POST("/like/:booru/:id", func(c *gin.Context) {
-			booruname := c.Param("id")
+			booruname := c.Param("booru")
 			idStr := c.Param("id")
 			id, err := strconv.Atoi(idStr)
 			if err != nil {

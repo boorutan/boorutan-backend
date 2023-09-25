@@ -114,6 +114,7 @@ type Post struct {
 	TagStringMeta      string `json:"tag_string_meta"`
 	LargeFileURL       string `json:"large_file_url"`
 	PreviewFileURL     string `json:"preview_file_url"`
+	BooruType          string `json:"booru_type"`
 }
 
 type Tag struct {
