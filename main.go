@@ -154,6 +154,7 @@ func main() {
 				UserId int64  `json:"user_id"`
 			}
 			if err != nil {
+				println(err.Error())
 				c.JSON(http.StatusInternalServerError, err)
 				return
 			}
@@ -285,8 +286,9 @@ func main() {
 				page = p
 			}
 			println(page)
+			_, inBypassCache := c.GetQuery("bypasscache")
 			post, err := b.GetPosts(booru.GetPostsOption{
-				Cache: true,
+				Cache: !inBypassCache,
 				Page:  page,
 				Tags:  tags,
 			})
