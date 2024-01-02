@@ -46,22 +46,30 @@ func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 		_ = redis.Push(fmt.Sprintf("cache:post:%v:%v", b.Base, p.ID), v)
 	}
 	for i, p := range *post {
-		url, err := p.GetPostSampleImage()
-		if err != nil {
-			continue
-		}
-		println(url)
-		uuid, err := image.GetImageUuid(url)
-		if err != nil {
-			continue
-		}
-		summary, err := image.GetImageMock(uuid)
+		summary, err := p.GetImageMock()
 		if err != nil {
 			continue
 		}
 		(*post)[i].Summary = summary
 	}
 	return post, err
+}
+
+func (p Post) GetImageMock() ([]image.Color, error) {
+	url, err := p.GetPostSampleImage()
+	if err != nil {
+		return []image.Color{}, nil
+	}
+	println(url)
+	uuid, err := image.GetImageUuid(url)
+	if err != nil {
+		return []image.Color{}, nil
+	}
+	summary, err := image.GetImageMock(uuid)
+	if err != nil {
+		return []image.Color{}, nil
+	}
+	return summary, nil
 }
 
 func (p *Post) GetPostSampleImage() (string, error) {
@@ -93,6 +101,10 @@ func (b *Booru) GetPost(option GetPostOption) (*Post, error) {
 	}
 	if err := json.Unmarshal([]byte(cache), &post); err != nil {
 		return nil, err
+	}
+	summary, err := post.GetImageMock()
+	if err == nil {
+		(*post).Summary = summary
 	}
 	return post, nil
 }
