@@ -67,7 +67,7 @@ func GetImageColorSummary(img image.Image, startX int, endX int, startY int, end
 func GetImageGridColorSummary(img image.Image, x int, y int, sizeX int, sizeY int) (r, g, b float64) {
 	width, height := GetSize(img)
 	gridSizeX, gridSizeY := width/sizeX-1, height/sizeY-1
-	r, g, b = GetImageColorSummary(img, x*gridSizeX, (x+1)*gridSizeX, y*gridSizeY, (y+1)*gridSizeY, 2)
+	r, g, b = GetImageColorSummary(img, x*gridSizeX, (x+1)*gridSizeX, y*gridSizeY, (y+1)*gridSizeY, 5)
 	return r, g, b
 }
 
