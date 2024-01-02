@@ -8,7 +8,7 @@ import (
 )
 
 func OpenImage(key string) (image.Image, error) {
-	path := fmt.Sprintf("./static/file/%s", key)
+	path := fmt.Sprintf("./static/images/%s", key)
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
