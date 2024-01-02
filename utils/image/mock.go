@@ -3,6 +3,8 @@ package image
 import (
 	"fmt"
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"math"
 	"os"
 )
