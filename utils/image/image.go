@@ -50,7 +50,7 @@ func GetImageMock(uuid string) ([]Color, error) {
 		return []Color{}, err
 	}
 	if err == r.Nil {
-		summary, err := GetImageSummary(uuid, 5, 5)
+		summary, err := GetImageSummary(uuid, 10, 10)
 		if err != nil {
 			return []Color{}, err
 		}

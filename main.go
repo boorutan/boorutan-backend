@@ -98,7 +98,6 @@ func __init__() {
 }
 
 func main() {
-
 	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
 	{
