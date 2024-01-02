@@ -1,5 +1,7 @@
 package booru
 
+import "applemango/boorutan/backend/utils/image"
+
 type Type int
 
 const (
@@ -115,6 +117,8 @@ type Post struct {
 	LargeFileURL       string `json:"large_file_url"`
 	PreviewFileURL     string `json:"preview_file_url"`
 	BooruType          string `json:"booru_type"`
+
+	Summary []image.Color `json:"summary"`
 }
 
 type Tag struct {

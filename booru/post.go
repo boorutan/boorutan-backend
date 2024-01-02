@@ -3,6 +3,7 @@ package booru
 import (
 	"applemango/boorutan/backend/db/redis"
 	"applemango/boorutan/backend/utils/http"
+	"applemango/boorutan/backend/utils/image"
 	"encoding/json"
 	"fmt"
 )
@@ -44,7 +45,39 @@ func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 		v := string(postJson)
 		_ = redis.Push(fmt.Sprintf("cache:post:%v:%v", b.Base, p.ID), v)
 	}
+	for i, p := range *post {
+		url, err := p.GetPostSampleImage()
+		if err != nil {
+			continue
+		}
+		println(url)
+		uuid, err := image.GetImageUuid(url)
+		if err != nil {
+			continue
+		}
+		summary, err := image.GetImageMock(uuid)
+		if err != nil {
+			continue
+		}
+		(*post)[i].Summary = summary
+	}
 	return post, err
+}
+
+func (p *Post) GetPostSampleImage() (string, error) {
+	if p.PreviewURL != "" {
+		return p.PreviewURL, nil
+	}
+	println(p.PreviewFileURL)
+	if p.PreviewFileURL != "" {
+		return p.PreviewFileURL, nil
+	}
+	for _, media := range p.MediaAsset.Variants {
+		if media.Type == "sample" {
+			return media.URL, nil
+		}
+	}
+	return p.FileURL, nil
 }
 
 // GetPostOption 仕組み上Cacheは強制的にTrue
