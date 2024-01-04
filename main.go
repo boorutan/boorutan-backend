@@ -145,7 +145,7 @@ func main() {
 	}
 	{
 		app.GET("/like", func(c *gin.Context) {
-			rows, err := sqlite3.DB.Query("SELECT id, booru, post_id, user_id FROM like WHERE user_id = ?", 1)
+			rows, err := sqlite3.DB.Query("SELECT id, booru, post_id, user_id FROM like WHERE user_id = ? ORDER BY id DESC", 1)
 			type like struct {
 				ID     int64  `json:"id"`
 				Booru  string `json:"booru"`
