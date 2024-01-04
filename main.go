@@ -179,6 +179,15 @@ func main() {
 			return
 		})
 		app.POST("/like/:booru/:id", func(c *gin.Context) {
+			type Body struct {
+				Like bool `json:"like"`
+			}
+			var b Body
+			err := c.Bind(&b)
+			if err != nil {
+				c.JSON(http.StatusOK, err)
+				return
+			}
 			booruname := c.Param("booru")
 			idStr := c.Param("id")
 			id, err := strconv.Atoi(idStr)
@@ -186,15 +195,9 @@ func main() {
 				c.JSON(http.StatusInternalServerError, err)
 				return
 			}
-			stmt, err := sqlite3.DB.Prepare("INSERT INTO  like (booru, post_id, user_id) VALUES ( ?, ?, ?)")
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, err)
-				return
-			}
-			_, err = stmt.Exec(booruname, id, 1)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, err)
-				return
+			_, _ = sqlite3.DB.Exec("DELETE FROM like WHERE booru = ? AND post_id = ? AND user_id = ?", booruname, id, 1)
+			if b.Like {
+				_, _ = sqlite3.DB.Exec("INSERT INTO like (booru, post_id, user_id) VALUES ( ?, ?, ? )", booruname, id, 1)
 			}
 			type msg struct {
 				Msg string `json:"msg"`
