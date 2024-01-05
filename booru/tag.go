@@ -97,7 +97,7 @@ type DanbooruTag struct {
 
 func SearchTags(name string) []DanbooruTag {
 	var tags []DanbooruTag
-	_, values, _ := redis.SearchKV(fmt.Sprintf("cache:tag:%v*", name), 100)
+	_, values, _ := redis.SearchKV(fmt.Sprintf("cache:tag:%v*", name), 10)
 	for _, v := range values {
 		var tag *DanbooruTag
 		_ = json.Unmarshal([]byte(v), &tag)
