@@ -3,6 +3,7 @@ package handler
 import (
 	"applemango/boorutan/backend/booru"
 	"applemango/boorutan/backend/db/sqlite3"
+	"applemango/boorutan/backend/user"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -15,9 +16,12 @@ func LikePost(c *gin.Context) {
 	var b Body
 	err := c.Bind(&b)
 	if err != nil {
-		c.JSON(http.StatusOK, err)
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
+	account, _ := c.Get("account")
+	u := account.(user.User)
+
 	booruname := c.Param("booru")
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -25,9 +29,9 @@ func LikePost(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-	_, _ = sqlite3.DB.Exec("DELETE FROM like WHERE booru = ? AND post_id = ? AND user_id = ?", booruname, id, 1)
+	_, _ = sqlite3.DB.Exec("DELETE FROM like WHERE booru = ? AND post_id = ? AND user_id = ?", booruname, id, u.Id)
 	if b.Like {
-		_, _ = sqlite3.DB.Exec("INSERT INTO like (booru, post_id, user_id) VALUES ( ?, ?, ? )", booruname, id, 1)
+		_, _ = sqlite3.DB.Exec("INSERT INTO like (booru, post_id, user_id) VALUES ( ?, ?, ? )", booruname, id, u.Id)
 	}
 	type msg struct {
 		Msg string `json:"msg"`
@@ -37,12 +41,14 @@ func LikePost(c *gin.Context) {
 }
 
 func GetLikedPost(c *gin.Context) {
-	rows, err := sqlite3.DB.Query("SELECT id, booru, post_id, user_id FROM like WHERE user_id = ? ORDER BY id DESC", 1)
+	account, _ := c.Get("account")
+	u := account.(user.User)
+	rows, err := sqlite3.DB.Query("SELECT id, booru, post_id, user_id FROM like WHERE user_id = ? ORDER BY id DESC", u.Id)
 	type like struct {
 		ID     int64  `json:"id"`
 		Booru  string `json:"booru"`
 		PostId int64  `json:"post_id"`
-		UserId int64  `json:"user_id"`
+		UserId string `json:"user_id"`
 	}
 	if err != nil {
 		println(err.Error())
