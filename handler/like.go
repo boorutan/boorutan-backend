@@ -73,6 +73,10 @@ func GetLikedPost(c *gin.Context) {
 		post.BooruType = l.Booru
 		posts = append(posts, post)
 	}
+	if len(posts) == 0 {
+		c.JSON(http.StatusOK, []booru.Post{})
+		return
+	}
 	c.JSON(http.StatusOK, posts)
 	return
 }

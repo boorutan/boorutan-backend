@@ -24,6 +24,7 @@ func Cors() gin.HandlerFunc {
 			"Content-Length",
 			"Accept-Encoding",
 			"Authorization",
+			"Account",
 		},
 		MaxAge: 0,
 	})
