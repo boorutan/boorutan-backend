@@ -16,6 +16,16 @@ func GetTagSuggest(c *gin.Context) {
 	c.JSON(http.StatusOK, tags)
 }
 
+func GetTagSuggestFast(c *gin.Context) {
+	q, in := c.GetQuery("q")
+	if !in {
+		c.JSON(http.StatusInternalServerError, "err")
+		return
+	}
+	tags := booru.SearchTagsFast(q)
+	c.JSON(http.StatusOK, tags)
+}
+
 func GetTag(c *gin.Context) {
 	b := GetBooru(c)
 	tag, err := b.GetTag(booru.GetTagOption{
