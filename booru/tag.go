@@ -106,6 +106,20 @@ func SearchTags(name string) []DanbooruTag {
 	}
 	return tags
 }
+
+func SearchTagsFast(name string) []DanbooruTag {
+	var tags []DanbooruTag
+	rows, err := sqlite3.TagDB.Query("SELECT id, name, category, post_count FROM tag WHERE name LIKE ? OR translated_name LIKE ? ORDER BY post_count DESC LIMIT 30", "%"+name+"%", "%"+name+"%")
+	for rows.Next() {
+		tag := DanbooruTag{}
+		if err = rows.Scan(&tag.ID, &tag.Name, &tag.Category, &tag.PostCount); err != nil {
+			break
+		}
+		tags = append(tags, tag)
+	}
+	return tags
+}
+
 type TranslatedTag struct {
 	id             int
 	name           string

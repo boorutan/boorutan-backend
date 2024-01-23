@@ -31,7 +31,9 @@ func main() {
 	//app.POST("/like/:booru/:id", h.LikePost)
 	app.GET("/category", h.GetTagCategory)
 	app.GET("/tag/suggest", h.GetTagSuggest)
+	app.GET("/tag/suggest/fast", h.GetTagSuggestFast)
 	app.GET("/tag", h.GetTag)
+
 	app.POST("/tag/translate", h.TagTranslate)
 	app.GET("/post/:id", h.GetPost)
 	app.GET("/post", h.GetPosts)
