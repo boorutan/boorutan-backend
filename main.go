@@ -22,7 +22,7 @@ func main() {
 	{
 		account.Use(middleware.LoginMiddleware())
 		account.GET("/like", h.GetLikedPost)
-		account.GET("/like/:booru/:id", h.LikePost)
+		account.POST("/like/:booru/:id", h.LikePost)
 		// u, _ := c.Get("account")
 	}
 	app.GET("/ping", h.Ping)
