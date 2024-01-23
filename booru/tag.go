@@ -2,6 +2,7 @@ package booru
 
 import (
 	"applemango/boorutan/backend/db/redis"
+	"applemango/boorutan/backend/db/sqlite3"
 	"applemango/boorutan/backend/utils/http"
 	"encoding/json"
 	"fmt"
@@ -104,4 +105,25 @@ func SearchTags(name string) []DanbooruTag {
 		tags = append(tags, *tag)
 	}
 	return tags
+}
+type TranslatedTag struct {
+	id             int
+	name           string
+	translated     bool
+	translatedName string
+}
+
+func TranslateTags(tags []string) []string {
+	var translated []string
+	for _, v := range tags {
+		row := sqlite3.TagDB.QueryRow("SELECT id, name, translated, translated_name FROM tag WHERE translated = true AND name = ? OR alias LIKE '%' || ? || '%'", v, v)
+		var tag TranslatedTag
+		err := row.Scan(&tag.id, &tag.name, &tag.translated, &tag.translatedName)
+		if err != nil || !tag.translated {
+			translated = append(translated, v)
+			continue
+		}
+		translated = append(translated, tag.translatedName)
+	}
+	return translated
 }
