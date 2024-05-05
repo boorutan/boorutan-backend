@@ -8,7 +8,7 @@ import (
 
 var Ctx = context.Background()
 var DB = redis.NewClient(&redis.Options{
-	Addr:     "127.0.0.1:6379",
+	Addr:     "127.0.0.1:6381",
 	Password: "",
 	DB:       0,
 })

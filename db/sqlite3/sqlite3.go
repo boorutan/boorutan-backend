@@ -8,7 +8,7 @@ import (
 
 var DB *sql.DB = NewClient()
 var TagDB *sql.DB = (func() *sql.DB {
-	db, err := sql.Open("sqlite3", "/Users/apple/Documents/docs/www/full/boorutan/booru-japanese-tag/app.db")
+	db, err := sql.Open("sqlite3", "tagdb.db")
 	if err != nil {
 		panic("Could not open database")
 	}
