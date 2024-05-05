@@ -11,7 +11,7 @@ func Cors() gin.HandlerFunc {
 			"http://127.0.0.1:3001",
 			"https://booru.i32.jp",
 			"http://127.0.0.1:3000",
-			"https://dev.i32.jp"
+			"https://dev.i32.jp",
 		},
 		AllowMethods: []string{
 			"POST",
