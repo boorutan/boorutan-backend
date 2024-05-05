@@ -14,6 +14,7 @@ func __init__() {
 }
 
 func main() {
+	//__init__()
 	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
 	app.Use(middleware.Cors())
