@@ -7,6 +7,7 @@ import (
 	"applemango/boorutan/backend/utils"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -62,12 +63,12 @@ type DiscordWebhookEmbedsImage struct {
 	Url string `json:"url,omitempty"`
 }
 type DiscordWebhookEmbeds struct {
-	Color       int                       `json:"color,omitempty"`
-	Title       string                    `json:"title,omitempty"`
-	Description string                    `json:"description,omitempty"`
-	Image       DiscordWebhookEmbedsImage `json:"image,omitempty"`
-	Timestamp   int                       `json:"timestamp"`
-	Footer      DiscordWebhookEmbedsFooter
+	Color       int                        `json:"color,omitempty"`
+	Title       string                     `json:"title,omitempty"`
+	Description string                     `json:"description,omitempty"`
+	Image       DiscordWebhookEmbedsImage  `json:"image,omitempty"`
+	Timestamp   int                        `json:"timestamp"`
+	Footer      DiscordWebhookEmbedsFooter `json:"footer"`
 }
 type DiscordWebhookEmbedsMessage struct {
 	Embeds []DiscordWebhookEmbeds `json:"embeds"`
@@ -84,10 +85,10 @@ func SendWebhook(post booru.Post) error {
 				Image: DiscordWebhookEmbedsImage{
 					Url: fmt.Sprintf("https://api-booru.i32.jp/image?url=%v", post.FileURL),
 				},
-				Timestamp: int(time.Now().UnixMilli()),
+				//Timestamp: int(time.Now().UnixMilli()),
 				Footer: DiscordWebhookEmbedsFooter{
 					Text:    "Danbooru",
-					IconUrl: "https://api-booru.i32.jp/image?url=https://danbooru.donmai.us/favicon.ico",
+					IconUrl: "https://api-booru.i32.jp/image?url=https://cdn.discordapp.com/emojis/1209826715631624243.webp?size=96&quality=lossless",
 				},
 			},
 		},
@@ -97,10 +98,10 @@ func SendWebhook(post booru.Post) error {
 		panic(err.Error())
 	}
 	reader := strings.NewReader(string(str))
-	//fmt.Println(string(str))
-	_, err = http.Post(webhook, "application/json", reader)
-	//bodyBytes, err := io.ReadAll(res.Body)
-	//fmt.Println(string(bodyBytes), res.StatusCode)
+	fmt.Println(string(str))
+	res, err := http.Post(webhook, "application/json", reader)
+	bodyBytes, err := io.ReadAll(res.Body)
+	fmt.Println(string(bodyBytes), res.StatusCode)
 	return err
 }
 
