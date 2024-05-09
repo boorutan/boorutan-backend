@@ -1,6 +1,7 @@
 package main
 
 import (
+	"applemango/boorutan/backend/booru/feed"
 	"applemango/boorutan/backend/booru/moebooru"
 	h "applemango/boorutan/backend/handler"
 	"applemango/boorutan/backend/middleware"
@@ -19,6 +20,7 @@ func main() {
 	app := gin.Default()
 	app.Use(middleware.Cors())
 	app.Use(h.OptionMiddleware())
+	feed.RegisterBooruStreamer(app)
 	account := app.Group("/account")
 	{
 		account.Use(middleware.LoginMiddleware())
