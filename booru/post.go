@@ -14,6 +14,27 @@ type GetPostsOption struct {
 	Cache bool
 }
 
+func (p *Post) ToString() (string, error) {
+	postJson, err := json.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+	v := string(postJson)
+	return v, nil
+}
+
+func StringToPost(sp string) (*Post, error) {
+	var post *Post
+	if err := json.Unmarshal([]byte(sp), &post); err != nil {
+		return nil, err
+	}
+	summary, err := post.GetImageMock()
+	if err == nil {
+		(*post).Summary = summary
+	}
+	return post, nil
+}
+
 func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 	var post *[]Post
 	var url string
@@ -37,12 +58,11 @@ func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 		Cache:  option.Cache,
 	})
 	for _, p := range *post {
-		postJson, err := json.Marshal(p)
+		v, err := p.ToString()
 		if err != nil {
 			println(err.Error())
 			continue
 		}
-		v := string(postJson)
 		_ = redis.Push(fmt.Sprintf("cache:post:%v:%v", b.Base, p.ID), v)
 	}
 	for i, p := range *post {
@@ -55,7 +75,7 @@ func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 	return post, err
 }
 
-func (p Post) GetImageMock() ([]image.Color, error) {
+func (p *Post) GetImageMock() ([]image.Color, error) {
 	url, err := p.GetPostSampleImage()
 	if err != nil {
 		return []image.Color{}, nil
@@ -94,17 +114,9 @@ type GetPostOption struct {
 }
 
 func (b *Booru) GetPost(option GetPostOption) (*Post, error) {
-	var post *Post
 	cache, err := redis.Get(fmt.Sprintf("cache:post:%v:%v", b.Base, option.ID))
 	if err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal([]byte(cache), &post); err != nil {
-		return nil, err
-	}
-	summary, err := post.GetImageMock()
-	if err == nil {
-		(*post).Summary = summary
-	}
-	return post, nil
+	return StringToPost(cache)
 }
