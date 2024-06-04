@@ -2,8 +2,8 @@ package feed
 
 import (
 	"applemango/boorutan/backend/booru"
+	"applemango/boorutan/backend/db/logger"
 	"applemango/boorutan/backend/handler"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"time"
@@ -11,30 +11,34 @@ import (
 
 // https://github.com/gin-gonic/examples/blob/master/server-sent-event/main.go
 
+type PostLogger struct {
+	Post    booru.Post `json:"post"`
+	Message string     `json:"message,omitempty"`
+}
+
 func RegisterBooruStreamer(app *gin.Engine) {
 	stream := NewServer()
 	go func() {
 		for {
-			time.Sleep(time.Second * 30)
 			b := handler.GetBooruFromString("danbooru")
-			println("generate feed...")
-			err := generateFeedCore(b, 1, func(p booru.Post) {
+			_ = generateFeedCore(b, 1, func(p booru.Post) {
 				ps, err := p.ToString()
 				if err != nil {
-					panic(err.Error())
 					return
 				}
 				stream.Message <- ps
-				err = SendWebhook(p)
-				if err != nil {
-					panic(err.Error())
-					return
-				}
-				fmt.Println("push")
+				go func() {
+					logger.Ctx.SendEvent(PostLogger{
+						Post:    p,
+						Message: "New Post",
+					})
+					err = SendWebhook(p)
+					if err != nil {
+						return
+					}
+				}()
 			})
-			if err != nil {
-				panic(err.Error())
-			}
+			time.Sleep(time.Second * 30)
 		}
 	}()
 
