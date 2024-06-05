@@ -2,6 +2,7 @@ package handler
 
 import (
 	"applemango/boorutan/backend/booru"
+	"applemango/boorutan/backend/db/logger"
 	"applemango/boorutan/backend/db/sqlite3"
 	"applemango/boorutan/backend/user"
 	"github.com/gin-gonic/gin"
@@ -9,12 +10,25 @@ import (
 	"strconv"
 )
 
+type msg struct {
+	Msg string `json:"msg"`
+}
+
+type LikeLogger struct {
+	Post      booru.Post `json:"post"`
+	Booru     string     `json:"booru,omitempty"`
+	ID        int        `json:"id,omitempty"`
+	Account   user.User  `json:"account"`
+	RequestId string     `json:"requestId,omitempty"`
+	Message   string     `json:"message,omitempty"`
+}
+
 func LikePost(c *gin.Context) {
 	type Body struct {
 		Like bool `json:"like"`
 	}
-	var b Body
-	err := c.Bind(&b)
+	var body Body
+	err := c.Bind(&body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
@@ -29,13 +43,29 @@ func LikePost(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
+
+	b := GetBooruFromString(booruname)
+	p, err := b.GetPost(booru.GetPostOption{
+		ID: id,
+	})
+	if err != nil || p == nil {
+		c.JSON(http.StatusOK, msg{Msg: "success"})
+	}
+
 	_, _ = sqlite3.DB.Exec("DELETE FROM like WHERE booru = ? AND post_id = ? AND user_id = ?", booruname, id, u.Id)
-	if b.Like {
+	if body.Like {
 		_, _ = sqlite3.DB.Exec("INSERT INTO like (booru, post_id, user_id) VALUES ( ?, ?, ? )", booruname, id, u.Id)
 	}
-	type msg struct {
-		Msg string `json:"msg"`
-	}
+	requestId, _ := c.Get("requestId")
+	logger.Ctx.SendEvent(LikeLogger{
+		Post:      *p,
+		Booru:     booruname,
+		ID:        id,
+		Account:   u,
+		RequestId: requestId.(string),
+		Message:   "New like",
+	})
+
 	c.JSON(http.StatusOK, msg{Msg: "success"})
 	return
 }
