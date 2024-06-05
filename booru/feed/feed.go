@@ -6,6 +6,7 @@ import (
 	"applemango/boorutan/backend/handler"
 	"applemango/boorutan/backend/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,6 +26,9 @@ func generateFeedCore(b booru.Booru, page int, f func(p booru.Post)) error {
 	now := time.Now()
 	lastUpdate := time.Now()
 	for _, p := range *posts {
+		if &p == nil {
+			return errors.New("")
+		}
 		updateAt, err := utils.ParseDanbooruTime(p.UpdatedAt)
 		if err != nil {
 			return err
