@@ -18,9 +18,12 @@ func main() {
 	//__init__()
 	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
+
 	app.Use(middleware.Cors())
 	app.Use(h.OptionMiddleware())
 	feed.RegisterBooruStreamer(app)
+	app.Use(middleware.BaseLimeMiddleware())
+
 	account := app.Group("/account")
 	{
 		account.Use(middleware.LoginMiddleware())
