@@ -57,6 +57,9 @@ func (b *Booru) GetPosts(option GetPostsOption) (*[]Post, error) {
 		Body:   nil,
 		Cache:  option.Cache,
 	})
+	if err != nil || post == nil {
+		return nil, err
+	}
 	for _, p := range *post {
 		v, err := p.ToString()
 		if err != nil {
