@@ -27,16 +27,16 @@ func RegisterBooruStreamer(app *gin.Engine) {
 					return
 				}
 				stream.Message <- ps
-				/*go func() {
+				go func() {
 					logger.Ctx.SendEvent(PostLogger{
 						Post:    p,
 						Message: "New Post",
 					})
-					err = SendWebhook(p)
+					/*err = SendWebhook(p)
 					if err != nil {
 						return
-					}
-				}()*/
+					}*/
+				}()
 			})
 			time.Sleep(time.Second * 30)
 		}
